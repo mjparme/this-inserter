@@ -30,8 +30,10 @@ public class Person {
 
 }}}
 
-After the this inserter plugin is ran the return of the equals method looks like this (the "person.this.name" construct is incorrect, it should remain "person.name"):
+After the this inserter plugin is ran the return of the equals method looks like this:
 
 {{{
 return this.name.equals(person.this.name);
 }}}
+
+The "person.this.name" construct is incorrect, it should remain "person.name".
