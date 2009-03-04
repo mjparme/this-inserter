@@ -31,14 +31,14 @@ public class ThisInserter implements Runnable {
     }
 
     public void run() {
-        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        Editor editor = FileEditorManager.getInstance(this.project).getSelectedTextEditor();
         if (editor != null) {
             final Document document = editor.getDocument();
             PsiClass currentClass = this.getClassInCurrentEditor();
             if (currentClass != null) {
                 String topLevelClassName = currentClass.getName();
-                addThis(document, currentClass, topLevelClassName, ReferenceType.MEMBER);
-                addThis(document, currentClass, topLevelClassName, ReferenceType.METHOD);
+                this.addThis(document, currentClass, topLevelClassName, ReferenceType.MEMBER);
+                this.addThis(document, currentClass, topLevelClassName, ReferenceType.METHOD);
             }
         }
     }
@@ -74,19 +74,19 @@ public class ThisInserter implements Runnable {
     private void addThisToReferences(Document document, String topLevelClassName, Collection<PsiReference> references) {
         for (PsiReference reference : references) {
             final PsiElement element = reference.getElement();
-            if (!isElementInInnerClass(element, topLevelClassName) && !element.getText().startsWith("this.")) {
+            if (!this.isElementInInnerClass(element, topLevelClassName) && !element.getText().startsWith("this.")) {
                 int offset = element.getTextOffset();
                 document.insertString(offset, "this.");
-                PsiDocumentManager.getInstance(project).commitDocument(document);
+                PsiDocumentManager.getInstance(this.project).commitDocument(document);
             }
         }
     }
 
     private PsiClass getClassInCurrentEditor() {
         PsiClass currentClass = null;
-        final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        final Editor editor = FileEditorManager.getInstance(this.project).getSelectedTextEditor();
         if (editor != null) {
-            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, project);
+            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, this.project);
             if (javaFile != null) {
                 final PsiElement element = javaFile.findElementAt(editor.getCaretModel().getOffset());
                 currentClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
@@ -99,7 +99,7 @@ public class ThisInserter implements Runnable {
     private List<PsiElement> filterOutStaticReferences(PsiElement[] elements) {
         List<PsiElement> nonStatic = new ArrayList<PsiElement>();
         for (PsiElement psiElement : Arrays.asList(elements)) {
-            if (!hasStaticModifier(psiElement)) {
+            if (!this.hasStaticModifier(psiElement)) {
                 nonStatic.add(psiElement);
             }
         }
@@ -115,7 +115,7 @@ public class ThisInserter implements Runnable {
                 hasStaticModifier = true;
                 break;
             } else {
-                hasStaticModifier = hasStaticModifier(child);
+                hasStaticModifier = this.hasStaticModifier(child);
             }
         }
 
