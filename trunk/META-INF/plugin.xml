@@ -1,6 +1,6 @@
 <idea-plugin version="2">
-  <name>This-N-Nator</name>
-  <description>Add "this." to the front of member variables</description>
+  <name>ThisInserter</name>
+  <description>Add "this." to the front of member variables and method calls</description>
   <version>1.0</version>
   <vendor>Me</vendor>
   <idea-version since-build="9732"/>
@@ -14,9 +14,8 @@
   </project-components>
 
   <actions>
-    <!-- Add your actions here -->
       <action id="com.mike.thisinsert.InsertThis" class="com.mike.thisinsert.InsertThisAction" text="Add this to members"
-              description="Adds ">
+              description="Adds explicit this. in front of member variables and method calls">
           <add-to-group group-id="GenerateGroup" anchor="first"/>
           <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl T" second-keystroke="shift ctrl alt T"/>
       </action>
