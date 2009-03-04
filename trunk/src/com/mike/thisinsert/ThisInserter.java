@@ -10,10 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: mjparmel
@@ -26,7 +23,7 @@ public class ThisInserter implements Runnable {
     private Project project;
 
     private enum ReferenceType {
-        FIELD, METHOD
+        MEMBER, METHOD
     }
 
     public ThisInserter(Project project) {
@@ -40,7 +37,7 @@ public class ThisInserter implements Runnable {
             PsiClass currentClass = this.getClassInCurrentEditor();
             if (currentClass != null) {
                 String topLevelClassName = currentClass.getName();
-                addThis(document, currentClass, topLevelClassName, ReferenceType.FIELD);
+                addThis(document, currentClass, topLevelClassName, ReferenceType.MEMBER);
                 addThis(document, currentClass, topLevelClassName, ReferenceType.METHOD);
             }
         }
@@ -48,15 +45,27 @@ public class ThisInserter implements Runnable {
 
     private void addThis(Document document, PsiClass currentClass, String topLevelClassName, ReferenceType referenceType) {
         List<PsiElement> allElements = null;
-        if (ReferenceType.FIELD.equals(referenceType)) {
-            allElements = this.filterOutStaticFields(currentClass.getFields());
+        if (ReferenceType.MEMBER.equals(referenceType)) {
+            allElements = this.filterOutStaticReferences(currentClass.getFields());
         } else if (ReferenceType.METHOD.equals(referenceType)) {
-            allElements = this.filterOutStaticFields(currentClass.getMethods());
+            allElements = this.filterOutStaticReferences(currentClass.getMethods());
         }
 
         if (allElements != null) {
             for (PsiElement element : allElements) {
                 final Collection<PsiReference> references = ReferencesSearch.search(element).findAll();
+
+                //Special case to filter out any "this()" calls in constructors, apparently this() is counted
+                //as a reference to the constructor and would result in it looking like "this.this()"
+                if (ReferenceType.METHOD.equals(referenceType)) {
+                    for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
+                        PsiReference psiReference = iterator.next();
+                        if (psiReference instanceof PsiReferenceExpression && "this".equals(psiReference.getElement().getText())) {
+                            iterator.remove();
+                        }
+                    }
+                }
+
                 this.addThisToReferences(document, topLevelClassName, references);
             }
         }
@@ -87,7 +96,7 @@ public class ThisInserter implements Runnable {
         return currentClass;
     }
 
-    private List<PsiElement> filterOutStaticFields(PsiElement[] elements) {
+    private List<PsiElement> filterOutStaticReferences(PsiElement[] elements) {
         List<PsiElement> nonStatic = new ArrayList<PsiElement>();
         for (PsiElement psiElement : Arrays.asList(elements)) {
             if (!hasStaticModifier(psiElement)) {
