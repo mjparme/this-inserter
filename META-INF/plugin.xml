@@ -14,7 +14,7 @@
   </project-components>
 
   <actions>
-      <action id="com.mike.thisinsert.InsertThis" class="com.mike.thisinsert.InsertThisAction" text="Add this to members"
+      <action id="com.mike.thisinsert.InsertThis" class="com.mike.thisinsert.InsertThisAction" text="Add explicit this"
               description="Adds explicit this. in front of member variables and method calls">
           <add-to-group group-id="GenerateGroup" anchor="first"/>
           <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl T" second-keystroke="shift ctrl alt T"/>
