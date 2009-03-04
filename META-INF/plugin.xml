@@ -3,7 +3,7 @@
   <description>Add explicit this. to the front of member variables and method calls</description>
   <version>1.0</version>
   <vendor email="mjparme@gmail.com" url="http://code.google.com/p/this-inserter/">Michael Parmeley</vendor>
-  <idea-version since-build="9732"/>
+  <idea-version since-build="9013"/>
 
   <application-components>
     <!-- Add your application components here -->
