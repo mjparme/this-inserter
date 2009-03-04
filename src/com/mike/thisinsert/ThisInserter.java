@@ -1,6 +1,5 @@
 package com.mike.thisinsert;
 
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -24,47 +23,75 @@ import java.util.List;
 public class ThisInserter implements Runnable {
     private static final Logger logger = Logger.getInstance(ThisInserter.class.getName());
 
-    private DataContext dataContext;
     private Project project;
 
-    public ThisInserter(DataContext dataContext, Project project) {
-        this.dataContext = dataContext;
+    private enum ReferenceType {
+        FIELD, METHOD
+    }
+
+    public ThisInserter(Project project) {
         this.project = project;
     }
 
     public void run() {
-        final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         if (editor != null) {
             final Document document = editor.getDocument();
-            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, project);
-            if (javaFile != null) {
-                final PsiElement element = javaFile.findElementAt(editor.getCaretModel().getOffset());
-
-                PsiClass currentClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
-                if (currentClass != null) {
-                    String topLevelClassName = currentClass.getName();
-                    final List<PsiField> allFields = this.filterOutStaticFields(currentClass.getFields());
-                    for (PsiField field : allFields) {
-                        final Collection<PsiReference> references = ReferencesSearch.search(field).findAll();
-                        for (PsiReference reference : references) {
-                            final PsiElement referenceElement = reference.getElement();
-                            if (!isElementInInnerClass(referenceElement, topLevelClassName) && !referenceElement.getText().startsWith("this.")) {
-                                int offset = referenceElement.getTextOffset();
-                                document.insertString(offset, "this.");
-                                PsiDocumentManager.getInstance(project).commitDocument(document);
-                            }
-                        }
-                    }
-                }
+            PsiClass currentClass = this.getClassInCurrentEditor();
+            if (currentClass != null) {
+                String topLevelClassName = currentClass.getName();
+                addThis(document, currentClass, topLevelClassName, ReferenceType.FIELD);
+                addThis(document, currentClass, topLevelClassName, ReferenceType.METHOD);
             }
         }
     }
 
-    private List<PsiField> filterOutStaticFields(PsiField[] allFields) {
-        List<PsiField> nonStatic = new ArrayList<PsiField>();
-        for (PsiField psiField : Arrays.asList(allFields)) {
-            if (!hasStaticModifier(psiField)) {
-                nonStatic.add(psiField);
+    private void addThis(Document document, PsiClass currentClass, String topLevelClassName, ReferenceType referenceType) {
+        List<PsiElement> allElements = null;
+        if (ReferenceType.FIELD.equals(referenceType)) {
+            allElements = this.filterOutStaticFields(currentClass.getFields());
+        } else if (ReferenceType.METHOD.equals(referenceType)) {
+            allElements = this.filterOutStaticFields(currentClass.getMethods());
+        }
+
+        if (allElements != null) {
+            for (PsiElement element : allElements) {
+                final Collection<PsiReference> references = ReferencesSearch.search(element).findAll();
+                this.addThisToReferences(document, topLevelClassName, references);
+            }
+        }
+    }
+
+    private void addThisToReferences(Document document, String topLevelClassName, Collection<PsiReference> references) {
+        for (PsiReference reference : references) {
+            final PsiElement element = reference.getElement();
+            if (!isElementInInnerClass(element, topLevelClassName) && !element.getText().startsWith("this.")) {
+                int offset = element.getTextOffset();
+                document.insertString(offset, "this.");
+                PsiDocumentManager.getInstance(project).commitDocument(document);
+            }
+        }
+    }
+
+    private PsiClass getClassInCurrentEditor() {
+        PsiClass currentClass = null;
+        final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        if (editor != null) {
+            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, project);
+            if (javaFile != null) {
+                final PsiElement element = javaFile.findElementAt(editor.getCaretModel().getOffset());
+                currentClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
+            }
+        }
+
+        return currentClass;
+    }
+
+    private List<PsiElement> filterOutStaticFields(PsiElement[] elements) {
+        List<PsiElement> nonStatic = new ArrayList<PsiElement>();
+        for (PsiElement psiElement : Arrays.asList(elements)) {
+            if (!hasStaticModifier(psiElement)) {
+                nonStatic.add(psiElement);
             }
         }
 
@@ -88,6 +115,7 @@ public class ThisInserter implements Runnable {
 
     private boolean isElementInInnerClass(PsiElement element, String topLevelClassName) {
         boolean inInnerClass = false;
+
         //If this usage is in an inner class the parent class will be the inner class name
         //and not the top level class name
         PsiClass parentClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);

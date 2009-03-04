@@ -15,7 +15,7 @@ public class InsertThisAction extends AnAction {
 
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        ThisInserter inserter = new ThisInserter(event.getDataContext(), project);
+        ThisInserter inserter = new ThisInserter(project);
         WriteActionRunner runner = new WriteActionRunner(inserter);
         CommandProcessor.getInstance().executeCommand(project, runner, "Insert This", null);
     }
