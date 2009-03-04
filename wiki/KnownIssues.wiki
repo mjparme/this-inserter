@@ -1,3 +1,5 @@
+#summary Known issues with the plugin
+
 = Known Issues =
 
 The plugin is a work in progress and it currently has the following issues (I am actively looking into these issues):
