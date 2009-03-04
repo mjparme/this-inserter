@@ -15,6 +15,6 @@ public class WriteActionRunner implements Runnable {
    }
 
    public void run() {
-      ApplicationManager.getApplication().runWriteAction(runnable);
+      ApplicationManager.getApplication().runWriteAction(this.runnable);
    }
 }
