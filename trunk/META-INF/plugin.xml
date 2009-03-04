@@ -1,8 +1,8 @@
-<idea-plugin version="2">
+<idea-plugin version="2" url="http://code.google.com/p/this-inserter/">
   <name>ThisInserter</name>
-  <description>Add "this." to the front of member variables and method calls</description>
+  <description>Add explicit this. to the front of member variables and method calls</description>
   <version>1.0</version>
-  <vendor>Me</vendor>
+  <vendor email="mjparme@gmail.com" url="http://code.google.com/p/this-inserter/">Michael Parmeley</vendor>
   <idea-version since-build="9732"/>
 
   <application-components>
