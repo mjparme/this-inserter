@@ -211,11 +211,11 @@
     </group>
   </component>
   <component name="ProjectDetails">
-    <option name="projectName" value="this-nator" />
+    <option name="projectName" value="this-inserter" />
   </component>
   <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectKey">
-    <option name="state" value="https://this-inserter.googlecode.com/svn/trunk/this-nator.ipr" />
+    <option name="state" value="https://this-inserter.googlecode.com/svn/trunk/this-inserter.ipr" />
   </component>
   <component name="ProjectModuleManager">
     <modules>
@@ -245,36 +245,6 @@
         <entry key="$PROJECT_DIR$">
           <value>
             <SvnBranchConfiguration>
-              <option name="branchMap">
-                <map>
-                  <entry key="https://this-inserter.googlecode.com/svn/branches">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://this-inserter.googlecode.com/svn/tags">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://this-inserter.googlecode.com/svn/wiki">
-                    <value>
-                      <list>
-                        <SvnBranchItem>
-                          <option name="creationDateMillis" value="1236183296422" />
-                          <option name="revision" value="14" />
-                          <option name="url" value="https://this-inserter.googlecode.com/svn/wiki/WishList.wiki" />
-                        </SvnBranchItem>
-                        <SvnBranchItem>
-                          <option name="creationDateMillis" value="1236182705746" />
-                          <option name="revision" value="11" />
-                          <option name="url" value="https://this-inserter.googlecode.com/svn/wiki/KnownIssues.wiki" />
-                        </SvnBranchItem>
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
               <option name="branchUrls">
                 <list>
                   <option value="https://this-inserter.googlecode.com/svn/branches" />
