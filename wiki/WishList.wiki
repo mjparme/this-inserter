@@ -4,7 +4,6 @@
 
 These are the things I am hoping to work on shortly
 
-  # In addition to member variables also add "this." to method calls in the same class
   # For inner class add "!InnerClassName.this" to member variables of the outer class
   # Provide configuration screen to control behavior (i.e. some people might not like the "!InnerClassName.this" construct)
 
