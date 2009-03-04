@@ -1,13 +1,14 @@
 #summary Future changes planned for the plugin
 
-= Introduction =
+= Immediate Plans =
 
-Add your content here.
+These are the things I am hoping to work on shortly
 
+  # In addition to member variables also add "this." to method calls in the same class
+  # For inner class add "InnerClassName.this" to member variables of the outer class
+  # Provide configuration screen to control behavior (i.e. some people might not like the "InnerClassName.this" construct)
 
-= Details =
+= Possibilities =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+  # Provide an option to remove any evil prepending of underscore or "m_" to member variables and replace them with "this."
+
