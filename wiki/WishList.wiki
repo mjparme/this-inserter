@@ -10,4 +10,4 @@ These are the things I am hoping to work on shortly
 
 = Possibilities =
 
-  # Provide an option to remove any evil prepending of underscore or "m_" to member variables and replace them with "this."
+  # Provide an option to remove any evil prepending of underscore or "m`_`" to member variables and replace them with "this."
