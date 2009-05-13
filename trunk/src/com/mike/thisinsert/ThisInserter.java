@@ -55,12 +55,16 @@ public class ThisInserter implements Runnable {
             for (PsiElement element : allElements) {
                 final Collection<PsiReference> references = ReferencesSearch.search(element).findAll();
 
-                //Special case to filter out any "this()" calls in constructors, apparently this() is counted
-                //as a reference to the constructor and would result in it looking like "this.this()"
+                //Filter out some special cases
                 if (ReferenceType.METHOD.equals(referenceType)) {
                     for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
                         PsiReference psiReference = iterator.next();
                         if (psiReference instanceof PsiReferenceExpression && "this".equals(psiReference.getElement().getText())) {
+                            //Filter out any "this()" calls in constructors, apparently this() is counted
+                            //as a reference to the constructor and would result in it looking like "this.this()"
+                            iterator.remove();
+                        } else if (psiReference.getElement().getText().equals(topLevelClassName)) {
+                            //Filter out any instantiation of itself. Like in the getInstance() method of a singleton
                             iterator.remove();
                         }
                     }
