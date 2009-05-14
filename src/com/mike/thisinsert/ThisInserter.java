@@ -56,15 +56,20 @@ public class ThisInserter implements Runnable {
                 final Collection<PsiReference> references = ReferencesSearch.search(element).findAll();
 
                 //Filter out some special cases
-                if (ReferenceType.METHOD.equals(referenceType)) {
-                    for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
-                        PsiReference psiReference = iterator.next();
-                        if (psiReference instanceof PsiReferenceExpression && "this".equals(psiReference.getElement().getText())) {
-                            //Filter out any "this()" calls in constructors, apparently this() is counted
-                            //as a reference to the constructor and would result in it looking like "this.this()"
+                for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
+                    PsiReference psiReference = iterator.next();
+                    final String referenceText = psiReference.getElement().getText();
+                    if (ReferenceType.METHOD.equals(referenceType)) {
+                        if ((psiReference instanceof PsiReferenceExpression && "this".equals(referenceText)) || referenceText.equals(topLevelClassName)) {
+                            //Filtering out two special cases deling with methods here
+                            //1) Filter out any "this()" calls in constructors, would result in it looking like "this.this()"
+                            //2) Filter out any instantiation of the containing. Like in the getInstance() method of a singleton
                             iterator.remove();
-                        } else if (psiReference.getElement().getText().equals(topLevelClassName)) {
-                            //Filter out any instantiation of itself. Like in the getInstance() method of a singleton
+                        }
+                    } else if (ReferenceType.MEMBER.equals(referenceType)) {
+                        final String fieldText = ((PsiField) element).getNameIdentifier().getText();
+                        if (!referenceText.equals(fieldText)) {
+                            //Make sure the reference is standalone, i.e. not somethign like "this.reference", "person.reference"
                             iterator.remove();
                         }
                     }
@@ -102,7 +107,7 @@ public class ThisInserter implements Runnable {
 
     private List<PsiElement> filterOutStaticReferences(PsiElement[] elements) {
         List<PsiElement> nonStatic = new ArrayList<PsiElement>();
-        for (PsiElement psiElement : Arrays.asList(elements)) {
+        for (PsiElement psiElement : elements) {
             if (!this.hasStaticModifier(psiElement)) {
                 nonStatic.add(psiElement);
             }
