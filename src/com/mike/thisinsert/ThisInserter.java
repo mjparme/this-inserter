@@ -63,19 +63,22 @@ public class ThisInserter implements Runnable {
             //Filter out some special cases
             for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
                 PsiReference psiReference = iterator.next();
-                final String referenceText = psiReference.getElement().getText();
+                final PsiElement referenceElement = psiReference.getElement();
+                final String referenceText = referenceElement.getText();
                 if (ReferenceType.METHOD.equals(referenceType)) {
                     if ((psiReference instanceof PsiReferenceExpression && "this".equals(referenceText)) || referenceText.equals(topLevelClassName)) {
                         //Filtering out two special cases dealing with methods here
                         //1) Filter out any "this()" calls in constructors, would result in it looking like "this.this()"
-                        //2) Filter out any instantiation of the containing. Like in the getInstance() method of a singleton
+                        //2) Filter out any instantiation of the containing class. Like in the getInstance() method of a singleton
                         iterator.remove();
                     }
                 } else if (ReferenceType.MEMBER.equals(referenceType)) {
-                    final String fieldText = ((PsiField) element).getNameIdentifier().getText();
-                    if (!referenceText.equals(fieldText)) {
-                        //Make sure the reference is standalone, i.e. not something like "this.reference", "person.reference"
-                        iterator.remove();
+                    //Make sure the reference is standalone, i.e. not something like "this.reference", "person.reference"
+                    if (referenceElement instanceof PsiReferenceExpression) {
+                        PsiReferenceExpression referenceExpression = (PsiReferenceExpression) referenceElement;
+                        if (referenceExpression.isQualified()) {
+                            iterator.remove();
+                        }
                     }
                 }
             }
