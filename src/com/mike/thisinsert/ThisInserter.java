@@ -56,38 +56,30 @@ public class ThisInserter implements Runnable {
         allElements.addAll(Arrays.asList(elements));
         this.filterOutStaticElements(allElements);
 
+        final List<PsiReferenceExpression> modify = new ArrayList<PsiReferenceExpression>();
         for (PsiElement element : allElements) {
             final Collection<PsiReference> references = ReferencesSearch.search(element).findAll();
             this.filterOutInnerClassReferences(references);
 
-            //Filter out some special cases
-            for (Iterator<PsiReference> iterator = references.iterator(); iterator.hasNext();) {
-                PsiReference psiReference = iterator.next();
+            //Filter out some special cases, add the rest to a list to have "this." added to them
+            for (PsiReference psiReference : references) {
                 final PsiElement referenceElement = psiReference.getElement();
                 final String referenceText = referenceElement.getText();
-                if (ReferenceType.METHOD.equals(referenceType)) {
-                    if ((psiReference instanceof PsiReferenceExpression && "this".equals(referenceText)) || referenceText.equals(topLevelClassName)) {
-                        //Filtering out two special cases dealing with methods here
-                        //1) Filter out any "this()" calls in constructors, would result in it looking like "this.this()"
-                        //2) Filter out any instantiation of the containing class. Like in the getInstance() method of a singleton
-                        iterator.remove();
-                    }
-                } else if (ReferenceType.MEMBER.equals(referenceType)) {
-                    //Make sure the reference is standalone, i.e. not something like "this.reference", "person.reference"
-                    if (referenceElement instanceof PsiReferenceExpression) {
-                        PsiReferenceExpression referenceExpression = (PsiReferenceExpression) referenceElement;
-                        if (referenceExpression.isQualified()) {
-                            iterator.remove();
-                        }
+                if (referenceElement instanceof PsiReferenceExpression) {
+                    PsiReferenceExpression referenceExpression = (PsiReferenceExpression) referenceElement;
+                    //1) Filter out any "this()" calls in constructors, would result in it looking like "this.this()"
+                    //2) Make sure the reference is not qualified, i.e. not something like "this.reference", "person.reference"
+                    if (!referenceExpression.isQualified() && !"this".equals(referenceText))  {
+                        modify.add(referenceExpression);
                     }
                 }
             }
-
-            this.addThisToReferences(document, references);
         }
+        
+        this.addThisToReferences(document, modify);
     }
 
-    private void addThisToReferences(Document document, Collection<PsiReference> references) {
+    private void addThisToReferences(Document document, List<PsiReferenceExpression> references) {
         for (PsiReference reference : references) {
             final PsiElement element = reference.getElement();
             int offset = element.getTextOffset();
@@ -103,6 +95,7 @@ public class ThisInserter implements Runnable {
             final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, this.project);
             if (javaFile != null) {
                 final PsiElement element = javaFile.findElementAt(editor.getCaretModel().getOffset());
+                //final PsiElement element = javaFile.findElementAt(0);
                 currentClass = PsiTreeUtil.getParentOfType(element, PsiClass.class);
             }
         }
