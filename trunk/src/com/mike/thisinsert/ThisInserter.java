@@ -1,7 +1,6 @@
 package com.mike.thisinsert;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -34,17 +33,16 @@ public class ThisInserter implements Runnable {
     public void run() {
         Editor editor = FileEditorManager.getInstance(this.project).getSelectedTextEditor();
         if (editor != null) {
-            final Document document = editor.getDocument();
             PsiClass currentClass = this.getClassInCurrentEditor();
             if (currentClass != null) {
                 this.topLevelClassName = currentClass.getName();
-                this.addThis(document, currentClass, this.topLevelClassName, ReferenceType.MEMBER);
-                this.addThis(document, currentClass, this.topLevelClassName, ReferenceType.METHOD);
+                this.addThis(currentClass, ReferenceType.MEMBER);
+                this.addThis(currentClass, ReferenceType.METHOD);
             }
         }
     }
 
-    private void addThis(Document document, PsiClass currentClass, String topLevelClassName, ReferenceType referenceType) {
+    private void addThis(PsiClass currentClass, ReferenceType referenceType) {
         PsiElement[] elements = null;
         if (ReferenceType.MEMBER.equals(referenceType)) {
             elements = currentClass.getFields();
@@ -69,22 +67,24 @@ public class ThisInserter implements Runnable {
                     PsiReferenceExpression referenceExpression = (PsiReferenceExpression) referenceElement;
                     //1) Filter out any "this()" calls in constructors, would result in it looking like "this.this()"
                     //2) Make sure the reference is not qualified, i.e. not something like "this.reference", "person.reference"
-                    if (!referenceExpression.isQualified() && !"this".equals(referenceText))  {
+                    if (!referenceExpression.isQualified() && !"this".equals(referenceText)) {
                         modify.add(referenceExpression);
                     }
                 }
             }
         }
-        
-        this.addThisToReferences(document, modify);
+
+        this.addThisToReferences(modify);
     }
 
-    private void addThisToReferences(Document document, List<PsiReferenceExpression> references) {
-        for (PsiReference reference : references) {
-            final PsiElement element = reference.getElement();
-            int offset = element.getTextOffset();
-            document.insertString(offset, "this.");
-            PsiDocumentManager.getInstance(this.project).commitDocument(document);
+    private void addThisToReferences(List<PsiReferenceExpression> references) {
+        JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(this.project);
+        PsiElementFactory factory = psiFacade.getElementFactory();
+
+        for (PsiReferenceExpression referenceExpression : references) {
+            final PsiExpression newExpression = factory
+                    .createExpressionFromText("this." + referenceExpression.getText(), referenceExpression);
+            referenceExpression.replace(newExpression);
         }
     }
 
