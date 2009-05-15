@@ -39,7 +39,7 @@ public class ThisInserter implements Runnable {
             if (currentClass != null) {
                 this.topLevelClassName = currentClass.getName();
                 this.addThis(document, currentClass, this.topLevelClassName, ReferenceType.MEMBER);
-                //this.addThis(document, currentClass, this.topLevelClassName, ReferenceType.METHOD);
+                this.addThis(document, currentClass, this.topLevelClassName, ReferenceType.METHOD);
             }
         }
     }
@@ -54,7 +54,6 @@ public class ThisInserter implements Runnable {
 
         List<PsiElement> allElements = new ArrayList<PsiElement>();
         allElements.addAll(Arrays.asList(elements));
-
         this.filterOutStaticElements(allElements);
 
         for (PsiElement element : allElements) {
@@ -81,11 +80,11 @@ public class ThisInserter implements Runnable {
                 }
             }
 
-            this.addThisToReferences(document, topLevelClassName, references);
+            this.addThisToReferences(document, references);
         }
     }
 
-    private void addThisToReferences(Document document, String topLevelClassName, Collection<PsiReference> references) {
+    private void addThisToReferences(Document document, Collection<PsiReference> references) {
         for (PsiReference reference : references) {
             final PsiElement element = reference.getElement();
             int offset = element.getTextOffset();
