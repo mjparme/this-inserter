@@ -1,0 +1,3 @@
+#summary Additional Helpful Information
+
+ # The plugin works on the class the cursor is currently in. So if the cursor is in an inner class the plugin works only on that inner class. If it isn't doing what you think it should be doing make sure the cursor is not in an inner class (unless you are wanting to apply the plugin to the inner class)
