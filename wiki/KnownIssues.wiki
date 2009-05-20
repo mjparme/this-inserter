@@ -5,37 +5,3 @@
 The plugin is a work in progress and it currently has the following issues (I am actively looking into these issues):
 
   # Doesn't work inside an enum (not sure why)
-  # A class that references a member variable in another instance of the same class gets "this." appened to it. This shows up in "equals()" most often. I actually think this is an a bug in IntelliJ that is returning that usage as a reference. I am checking into this. To illustrate, consider the following class:
-
-{{{
-public class Person {
-    private String name;
-
-    public Person() {
-        this.name = "Smitty Johnson";
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Person person = (Person) o;
-        return name.equals(person.name);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-}
-
-}}}
-
-After the this inserter plugin is ran the return of the equals method looks like this:
-
-{{{
-return this.name.equals(person.this.name);
-}}}
-
-The "person.this.name" construct is incorrect, it should remain "person.name".
