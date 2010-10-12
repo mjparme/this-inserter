@@ -4,4 +4,4 @@
 
 The plugin is a work in progress and it currently has the following issues
 
-  # Can sometimes have weird behavior in enums. Sometimes add "this." where it shouldn't in enums.
+  # Can sometimes have weird behavior in enums.
