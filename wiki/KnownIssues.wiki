@@ -2,6 +2,6 @@
 
 = Known Issues =
 
-The plugin is a work in progress and it currently has the following issues (I am actively looking into these issues):
+The plugin is a work in progress and it currently has the following issues
 
-  # Doesn't work inside an enum (not sure why)
+  # Can sometimes have weird behavior in enums. Sometimes add "this." where it shouldn't in enums.
