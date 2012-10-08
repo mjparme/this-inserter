@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtil;
+import com.intellij.psi.util.PsiUtilBase;
 
 import java.util.*;
 
@@ -92,7 +92,7 @@ public class ThisInserter implements Runnable {
         PsiClass currentClass = null;
         final Editor editor = FileEditorManager.getInstance(this.project).getSelectedTextEditor();
         if (editor != null) {
-            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtil.getPsiFileInEditor(editor, this.project);
+            final PsiJavaFile javaFile = (PsiJavaFile) PsiUtilBase.getPsiFileInEditor(editor, this.project);
             if (javaFile != null) {
                 final PsiElement element = javaFile.findElementAt(editor.getCaretModel().getOffset());
                 //final PsiElement element = javaFile.findElementAt(0);
